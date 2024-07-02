@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATA_DIR="/home/dengpanfu/data"
-EXP_DIR="/home/dengpanfu/project/lupnl/pnl"
+DATA_DIR="/home/vision/Repo/LUPerson-NL/LUP-NL"
+EXP_DIR="/home/vision/Repo/LUPerson-NL/lupnl/pnl"
 
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python lup_pnl.py \
     --data_path "${DATA_DIR}/lupnl_lmdb/lmdb" \

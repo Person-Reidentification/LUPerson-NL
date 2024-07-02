@@ -91,12 +91,12 @@ def compute_mAP(index, good_index, junk_index):
 
     cmc[rows_good[0]:] = 1
     d_recall = 1.0/ngood
-    precision = (np.arange(len(rows_good), dtype=np.float) + 1) / (rows_good + 1)
+    precision = (np.arange(len(rows_good), dtype=float) + 1) / (rows_good + 1)
     if rows_good[0] == 0:
         old_precision = np.ones(len(rows_good))
-        old_precision[1:] = np.arange(1, len(rows_good), dtype=np.float) / rows_good[1:]
+        old_precision[1:] = np.arange(1, len(rows_good), dtype=float) / rows_good[1:]
     else:
-        old_precision = np.arange(len(rows_good), dtype=np.float) / rows_good
+        old_precision = np.arange(len(rows_good), dtype=float) / rows_good
     ap = np.sum((precision + old_precision) / 2. * d_recall)
 
     return ap, cmc

@@ -32,11 +32,11 @@ class PersonDataset(Dataset):
             data = pickle.load(f)
         self.keys = data['keys']
         if 'pids' in data:
-            self.labels = np.array(data['pids'], np.int)
+            self.labels = np.array(data['pids'], dtype=int)
         elif 'vids' in data:
-            self.labels = np.array(data['vids'], np.int)
+            self.labels = np.array(data['vids'], dtype=int)
         else:
-            self.labels = np.zeros(len(self.keys), np.int)
+            self.labels = np.zeros(len(self.keys), dtype=int)
         self.num_cls = len(set(self.labels))
 
     def __len__(self):

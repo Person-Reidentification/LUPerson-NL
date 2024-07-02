@@ -32,46 +32,53 @@ if __name__ == "__main__":
         keys = []
         vnames = []
         pids = []
-        env = lmdb.open(lmdb_dir, map_size=1e12)
+        env = lmdb.open(lmdb_dir, map_size=100000000)
         txn = env.begin(write=True)
         cnt = 0
         vid_cnt = 0
-        countries = sorted(os.listdir(base_dir))
-        for i, country in enumerate(countries):
-            city_dir = os.path.join(base_dir, country)
-            citys = sorted(os.listdir(city_dir))
-            for j, city in enumerate(citys):
-                vid_dir = os.path.join(city_dir, city)
-                vids = sorted(os.listdir(vid_dir))
-                for k, vid in enumerate(vids):
-                    if vid in vnames: continue
-                    vnames.append(vid)
-                    vid_cnt += 1
-                    key_vid = '{:05d}'.format(vid_cnt)
-                    im_dir = os.path.join(vid_dir, vid)
-                    names = sorted([x for x in os.listdir(im_dir) if x.endswith('jpg')])
-                    for m, name in enumerate(names):
-                        if cnt % 2000 == 0:
-                            print('[{:3d}|{:3d}] country={:s}, [{:d}|{:d}] city={:s}, ' \
-                                '[{:3d}|{:3d}] vid={:s}, [{:d}|{:d}] name={:s}'.format(i, 
-                                    len(countries), country, j, len(citys), city, k, len(vids), 
-                                    vid, m, len(names), name))
-                        key = key_vid + '_' + name[:-4]
-                        pid = int(name.split('_')[0])
-                        im_path = os.path.join(im_dir, name)
-                        with open(im_path, 'rb') as f:
-                            im_str = f.read()
-                        im = np.fromstring(im_str, np.uint8)
-                        keys.append(key)
-                        pids.append(pid)
-                        key_byte = key.encode('ascii')
-                        txn.put(key_byte, im)
-                        cnt += 1
-                txn.commit()
-                txn = env.begin(write=True)
+        # countries = sorted(os.listdir(base_dir))
+        # for i, country in enumerate(countries):
+        city_dir = os.path.join(base_dir)
+        citys = sorted(os.listdir(city_dir))
+        print('cities', citys)
+        for j, city in enumerate(citys):
+            print('1')
+            vid_dir = os.path.join(city_dir, city)
+            vids = sorted(os.listdir(vid_dir))
+            print('vids', vids)
+            for k, vid in enumerate(vids):
+                print('2')
+                if vid in vnames: continue
+                vnames.append(vid)
+                vid_cnt += 1
+                key_vid = '{:05d}'.format(vid_cnt)
+                im_dir = os.path.join(vid_dir, vid)
+                print('im_dir', os.listdir(im_dir))
+                names = sorted([x for x in os.listdir(im_dir) if x.endswith('jpeg')])
+                print(k, names)
+                for m, name in enumerate(names):
+                    print('3')
+                    if cnt % 1 == 0:
+                        print('[{:d}|{:d}] city={:s}, ' \
+                            '[{:3d}|{:3d}] vid={:s}, [{:d}|{:d}] name={:s}'.format(j, len(citys), city, k, len(vids), 
+                                                                                   vid, m, len(names), name))
+                    key = key_vid + '_' + name[:-4]
+                    pid = int(vid)
+                    im_path = os.path.join(im_dir, name)
+                    with open(im_path, 'rb') as f:
+                        im_str = f.read()
+                    im = np.fromstring(im_str, np.uint8)
+                    keys.append(key)
+                    pids.append(pid)
+                    key_byte = key.encode('ascii')
+                    txn.put(key_byte, im)
+                    cnt += 1
+            txn.commit()
+            txn = env.begin(write=True)
         txn.commit()
         env.close()
 
+        print({"keys": keys, "pids":pids})
         with open(key_path, 'wb') as f:
             pickle.dump({"keys": keys, "pids":pids}, f)
     else:
@@ -84,4 +91,4 @@ if __name__ == "__main__":
                 buf = txn.get(key.encode('ascii'))
             img_flat = np.frombuffer(buf, dtype=np.uint8)
             im = cv2.imdecode(img_flat, 1)
-            cv2.imwrite('tmp_vis.jpg', im)
+            cv2.imwrite(f'tmp_vis_{key}.jpg', im)
